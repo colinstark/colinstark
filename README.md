@@ -1,7 +1,13 @@
 # Hi there, I'm Colin 👋
-I'm a UX designer and developer living in Barcelona, Spain. 
+I'm a product designer and developer living in beautiful Barcelona, Spain. 
 
-I'm always fascinated by how the things we use everyday work, and love modern technologies – currently I'm working on a new project that will improve the way artists and music labels commmunicate.
+I have a natural curiosity for how the things we use every day work, and love modern technologies.
+Things I love using:
+- Sketch
+- Vue
+- Svelte
+- Modern CSS
+- Ruby
+- Elixir
 
-
-🌱 I’m currently learning elixir & phoenix.
+🌱 I’m currently getting back into Elixir & Phoenix Framework.
