@@ -1,0 +1,63 @@
+name: Update temperature
+
+on:
+  schedule:
+    # 07:00, 13:00, 19:00 UTC — roughly 09:00 / 15:00 / 21:00 in Barcelona
+    - cron: '0 7,13,19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-temperature
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Pushing with a PAT makes the commit land as you, not as the bot, which
+          # counts as repository activity and stops GitHub disabling this schedule
+          # after 60 idle days. Falls back to the built-in token if the secret is
+          # unset (the workflow still works, it just may go dormant eventually).
+          token: ${{ secrets.README_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Fetch current temperature
+        id: weather
+        env:
+          LAT: '41.3874'
+          LON: '2.1686'
+          TZ_NAME: 'Europe/Madrid'
+        run: |
+          set -euo pipefail
+          url="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m&timezone=${TZ_NAME}"
+          body=$(curl -fsS --retry 3 --retry-delay 5 --max-time 20 "$url")
+          temp=$(printf '%s' "$body" | jq -er '.current.temperature_2m')
+          rounded=$(printf '%.0f' "$temp")
+          echo "temp=${rounded}" >> "$GITHUB_OUTPUT"
+          echo "Current temperature: ${rounded}C (raw: ${temp})"
+
+      - name: Write it into the README
+        env:
+          TEMP: ${{ steps.weather.outputs.temp }}
+        run: |
+          set -euo pipefail
+          grep -q '<!--TEMP:START-->' README.md
+          grep -q '<!--TEMP:END-->' README.md
+          sed -i -E "s|(<!--TEMP:START-->).*(<!--TEMP:END-->)|\1${TEMP}°C\2|" README.md
+          grep -n 'TEMP:START' README.md
+
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- README.md; then
+            echo "Temperature unchanged, nothing to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "chore: update temperature" -- README.md
+          git push
