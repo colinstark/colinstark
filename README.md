@@ -1,5 +1,5 @@
 # Hello there 👻
-I'm a product designer and developer living in beautiful Barcelona, Spain, where it's currently <!--TEMP:START-->13°C<!--TEMP:END-->. 
+I'm a product designer and developer living in beautiful Barcelona, Spain, where it's currently <!--TEMP:START-->9°C<!--TEMP:END-->. 
 
 I have a natural curiosity for how the things we use every day work, and love modern technologies.
 
